@@ -57,34 +57,37 @@ app.post("/categories", async (req, res) => {
 app.get("/games", async (req, res) => {
   const nameSearch = req.query.name;
 
-  try {
-    const result = await connection.query('SELECT * FROM games;');
-    const games = result.rows;
+  if (nameSearch) {
+    try {
+      const result = await connection.query(`
+        SELECT 
+          games.*,
+          categories.name AS "categoryName"
+        FROM games
+          JOIN categories
+            ON games."categoryId" = categories.id
+          WHERE games.name iLIKE $1
+        ;`, [nameSearch + "%"]);
 
-    const gamesWithCategoryName = games.map(async (game) => {
-      const promise = await connection.query('SELECT name FROM categories WHERE id = $1', [game.categoryId])
-      const categoryName = promise.rows[0].name;
-      game = { ...game, categoryName };
-      return game;
-    });
+      res.status(200).send(result.rows)
+    } catch (err) {
+      console.log(err.message);
+    }
+  } else {
+    try {
+      const result = await connection.query(`
+        SELECT 
+          games.*,
+          categories.name AS "categoryName"
+        FROM games
+          JOIN categories
+            ON games."categoryId" = categories.id
+        ;`);
 
-    Promise.all(gamesWithCategoryName)
-      .then(response => {
-        const games = response;
-        if (nameSearch) {
-          const filterByQueryParam = games.filter(e => e.name.startsWith(`${capitalizeFirstLetter(nameSearch)}`));
-          if (filterByQueryParam.length === 0) {
-            res.status(404).send("Não há nenhum jogo referente a busca");
-            return;
-          }
-          res.status(200).send(filterByQueryParam);
-        } else {
-          res.status(200).send(games);
-        }
-      })
-
-  } catch (err) {
-    console.log(err.message);
+      res.status(200).send(result.rows)
+    } catch (err) {
+      console.log(err.message);
+    }
   }
 });
 
