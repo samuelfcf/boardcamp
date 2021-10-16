@@ -3,7 +3,6 @@ import cors from "cors";
 import pg from "pg";
 import { CategorieSchema } from "./schemas/CategorieSchema.js";
 import { GameSchema } from "./schemas/GameShema.js";
-import { capitalizeFirstLetter } from "./utils/auxFunctions.js";
 
 const { Pool } = pg;
 
@@ -34,7 +33,7 @@ app.post("/categories", async (req, res) => {
   const { error } = CategorieSchema.validate({ name });
 
   if (error) {
-    res.status(400).send("Nome não pode estar vazio")
+    res.sendStatus(400);
     return;
   }
 
@@ -42,10 +41,10 @@ app.post("/categories", async (req, res) => {
     const categorieExists = await connection.query('SELECT * FROM categories WHERE name = $1;', [name]);
 
     if (categorieExists.rows.length) {
-      res.status(409).send("Esse já existe ai ein meu");
+      res.sendStatus(409);
     } else {
       await connection.query('INSERT INTO categories (name) VALUES ($1);', [name]);
-      res.status(201).send("cadastrou");
+      res.sendStatus(201);
 
     }
   } catch (err) {
@@ -100,12 +99,12 @@ app.post("/games", async (req, res) => {
     const gameExists = await connection.query('SELECT * FROM games WHERE name = $1', [name]);
 
     if (!categoryExists.rows.length || error) {
-      res.status(400).send("Algo de errado não está certo")
+      res.sendStatus(400);
     } else if (gameExists.rows.length) {
-      res.status(409).send("Esse game já existe")
+      res.sendStatus(409);
     } else {
       await connection.query('INSERT INTO GAMES (name, image, "stockTotal", "categoryId", "pricePerDay") VALUES ($1, $2, $3, $4, $5)', [name, image, stockTotal, categoryId, pricePerDay])
-      res.status(201).send("Jogo cadastrado com sucesso");
+      res.sendStatus(201);
     }
   } catch (err) {
     console.log(err.message)
@@ -113,7 +112,7 @@ app.post("/games", async (req, res) => {
 });
 
 /* app.delete("/categories", (req, res) => {
-  connection.query("DELETE FROM categories WHERE id = 17;").then(result => res.send("apagou"))
+  connection.query("DELETE FROM categories WHERE id = 20;").then(result => res.send("apagou"))
 }) */
 
 /* app.delete("/games", (req, res) => {
