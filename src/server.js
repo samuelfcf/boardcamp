@@ -3,6 +3,7 @@ import cors from "cors";
 import pg from "pg";
 import { CategorieSchema } from "./schemas/CategorieSchema.js";
 import { GameSchema } from "./schemas/GameShema.js";
+import { CustomerSchema } from "./schemas/CustomerSchema.js";
 
 const { Pool } = pg;
 
@@ -100,10 +101,12 @@ app.post("/games", async (req, res) => {
 
     if (!categoryExists.rows.length || error) {
       res.sendStatus(400);
-    } else if (gameExists.rows.length) {
+    }
+    else if (gameExists.rows.length) {
       res.sendStatus(409);
-    } else {
-      await connection.query('INSERT INTO GAMES (name, image, "stockTotal", "categoryId", "pricePerDay") VALUES ($1, $2, $3, $4, $5)', [name, image, stockTotal, categoryId, pricePerDay])
+    }
+    else {
+      await connection.query('INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay") VALUES ($1, $2, $3, $4, $5)', [name, image, stockTotal, categoryId, pricePerDay])
       res.sendStatus(201);
     }
   } catch (err) {
@@ -111,8 +114,103 @@ app.post("/games", async (req, res) => {
   }
 });
 
+// COSTUMERS
+app.get("/customers", async (req, res) => {
+  const cpfSearch = req.query.cpf;
+
+  if (cpfSearch) {
+    try {
+      const result = await connection.query(`SELECT * FROM customers WHERE cpf iLIKE $1;`, [cpfSearch + "%"]);
+      result.rows = result.rows.map(user => ({
+        ...user,
+        birthday: new Date(user.birthday).toLocaleDateString('pt-Br')
+      }
+      ));
+      res.status(200).send(result.rows)
+    } catch (err) {
+      console.log(err.message);
+    }
+  } else {
+    try {
+      const result = await connection.query(`SELECT * FROM customers;`);
+      result.rows = result.rows.map(user => ({
+        ...user,
+        birthday: new Date(user.birthday).toLocaleDateString('pt-Br')
+      }
+      ));
+      res.status(200).send(result.rows)
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+});
+
+app.get("/customers/:id", async (req, res) => {
+  const id = req.params.id;
+  const result = await connection.query('SELECT * FROM customers WHERE id = $1', [id]);
+  if (result.rows.length === 0) {
+    res.sendStatus(404);
+  } else {
+    result.rows = result.rows.map(e => ({
+      ...e,
+      birthday: new Date(e.birthday).toLocaleDateString('pt-Br')
+    }));
+    res.status(200).send(result.rows[0]);
+  }
+});
+
+app.post("/customers", async (req, res) => {
+  const { name, phone, cpf, birthday } = req.body;
+  const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1;', [cpf])
+  try {
+    const { error } = CustomerSchema.validate({ name, phone, cpf, birthday });
+
+    if (error) {
+      console.log(error)
+      res.sendStatus(400)
+    }
+    else if (custumerExists.rows.length > 0) {
+      res.sendStatus(409)
+    }
+    else {
+      await connection.query('INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1, $2, $3, $4);', [name, phone, cpf, birthday]);
+      res.sendStatus(201)
+    }
+  } catch (err) {
+    console.log(err.message)
+  }
+});
+
+app.put("/customers/:id", async (req, res) => {
+  const id = req.params.id
+  const { name, phone, cpf, birthday } = req.body;
+  /* const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1;', [cpf]) */
+
+  try {
+    const { error } = CustomerSchema.validate({ name, phone, cpf, birthday });
+
+    if (error) {
+      console.log(error)
+      res.sendStatus(400)
+    }
+    /*   else if (custumerExists.rows.length > 0) {
+        res.sendStatus(409)
+      } */
+    else {
+      await connection.query('UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5;', [name, phone, cpf, birthday, id]);
+      res.sendStatus(200)
+    }
+  } catch (err) {
+    console.log(err.message)
+  }
+})
+
 /* app.delete("/categories", (req, res) => {
   connection.query("DELETE FROM categories WHERE id = 20;").then(result => res.send("apagou"))
+}) */
+
+/* app.delete("/customers", (req, res) => {
+  connection.query("DELETE FROM customers WHERE id = 2;").then(result => res.send("apagou"))
 }) */
 
 /* app.delete("/games", (req, res) => {
