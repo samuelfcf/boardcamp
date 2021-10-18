@@ -8,10 +8,10 @@ gamesRouter.post("/", async (req, res) => {
   const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
 
   try {
-    const { error } = GameSchema.validate({ name, image, stockTotal, pricePerDay });
+    const { error } = GameSchema.validate({ name, image, stockTotal, categoryId, pricePerDay });
     const categoryExists = await connection.query('SELECT * FROM categories WHERE id = $1', [categoryId]);
     const gameExists = await connection.query('SELECT * FROM games WHERE name = $1', [name]);
-
+    console.log(error)
     if (!categoryExists.rows.length || error) {
       res.sendStatus(400);
     }

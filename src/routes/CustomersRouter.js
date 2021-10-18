@@ -11,7 +11,6 @@ customersRouter.post("/", async (req, res) => {
     const { error } = CustomerSchema.validate({ name, phone, cpf, birthday });
 
     if (error) {
-      console.log(error)
       res.sendStatus(400)
     }
     else if (custumerExists.rows.length > 0) {
@@ -73,18 +72,17 @@ customersRouter.get("/:id", async (req, res) => {
 customersRouter.put("/:id", async (req, res) => {
   const id = req.params.id
   const { name, phone, cpf, birthday } = req.body;
-  /* const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1;', [cpf]) */
+  const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1 AND id <> $2;', [cpf, id])
 
   try {
     const { error } = CustomerSchema.validate({ name, phone, cpf, birthday });
 
     if (error) {
-      console.log(error)
       res.sendStatus(400)
     }
-    /*   else if (custumerExists.rows.length > 0) {
-        res.sendStatus(409)
-      } */
+    else if (custumerExists.rows.length > 0) {
+      res.sendStatus(409)
+    }
     else {
       await connection.query('UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5;', [name, phone, cpf, birthday, id]);
       res.sendStatus(200)
