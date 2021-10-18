@@ -25,6 +25,7 @@ categoriesRouter.post("/", async (req, res) => {
     }
   } catch (err) {
     console.log(err.message);
+    res.sendStatus(500);
   }
 });
 
@@ -33,7 +34,8 @@ categoriesRouter.get("/", async (req, res) => {
     const result = await connection.query('SELECT * FROM categories;');
     res.status(200).send(result.rows)
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
+    res.sendStatus(500);
   }
 });
 

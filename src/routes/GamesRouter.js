@@ -22,7 +22,8 @@ gamesRouter.post("/", async (req, res) => {
       res.sendStatus(201);
     }
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
+    res.sendStatus(500);
   }
 });
 
@@ -44,6 +45,7 @@ gamesRouter.get("/", async (req, res) => {
       res.status(200).send(result.rows)
     } catch (err) {
       console.log(err.message);
+      res.sendStatus(500);
     }
   } else {
     try {
@@ -59,6 +61,7 @@ gamesRouter.get("/", async (req, res) => {
       res.status(200).send(result.rows)
     } catch (err) {
       console.log(err.message);
+      res.sendStatus(500);
     }
   }
 });

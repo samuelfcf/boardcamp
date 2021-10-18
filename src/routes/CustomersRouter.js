@@ -22,7 +22,8 @@ customersRouter.post("/", async (req, res) => {
       res.sendStatus(201)
     }
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
+    res.sendStatus(500);
   }
 });
 
@@ -40,6 +41,7 @@ customersRouter.get("/", async (req, res) => {
       res.status(200).send(result.rows)
     } catch (err) {
       console.log(err.message);
+      res.sendStatus(500);
     }
   } else {
     try {
@@ -52,6 +54,7 @@ customersRouter.get("/", async (req, res) => {
       res.status(200).send(result.rows)
     } catch (err) {
       console.log(err.message);
+      res.sendStatus(500);
     }
   }
 });
@@ -71,6 +74,7 @@ customersRouter.get("/:id", async (req, res) => {
     }
   } catch (err) {
     console.log(err.message);
+    res.sendStatus(500);
   }
 });
 
@@ -93,6 +97,7 @@ customersRouter.put("/:id", async (req, res) => {
     }
   } catch (err) {
     console.log(err.message);
+    res.sendStatus(500);
   }
 });
 

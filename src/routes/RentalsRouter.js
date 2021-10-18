@@ -42,6 +42,7 @@ rentalsRouter.post("/", async (req, res) => {
     }
   } catch (err) {
     console.log(err.menssage);
+    res.sendStatus(500);
   }
 });
 
@@ -85,6 +86,7 @@ rentalsRouter.post("/:id/return", async (req, res) => {
     res.sendStatus(200);
   } catch (err) {
     console.log(err.menssage);
+    res.sendStatus(500);
   }
 });
 
@@ -257,6 +259,7 @@ rentalsRouter.get("/", async (req, res) => {
     }
   } catch (err) {
     console.log(err.menssage);
+    res.sendStatus(500);
   }
 });
 
@@ -278,6 +281,7 @@ rentalsRouter.delete("/:id", async (req, res) => {
     }
   } catch (err) {
     console.log(err.menssage);
+    res.sendStatus(500);
   }
 })
 
