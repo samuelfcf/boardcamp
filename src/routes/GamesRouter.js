@@ -5,9 +5,8 @@ import { GameSchema } from "../schemas/GameSchema.js";
 const gamesRouter = Router();
 
 gamesRouter.post("/", async (req, res) => {
-  const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
-
   try {
+    const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
     const { error } = GameSchema.validate({ name, image, stockTotal, categoryId, pricePerDay });
     const categoryExists = await connection.query('SELECT * FROM categories WHERE id = $1', [categoryId]);
     const gameExists = await connection.query('SELECT * FROM games WHERE name = $1', [name]);

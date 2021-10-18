@@ -261,22 +261,24 @@ rentalsRouter.get("/", async (req, res) => {
 });
 
 rentalsRouter.delete("/:id", async (req, res) => {
-  const id = req.params.id;
+  try {
+    const id = req.params.id;
 
-  const rentExists = await connection.query('SELECT * FROM rentals WHERE id = $1;', [id]);
-  console.log(rentExists.rows);
-  if (rentExists.rows.length === 0) {
-    res.sendStatus(404);
+    const rentExists = await connection.query('SELECT * FROM rentals WHERE id = $1;', [id]);
+    console.log(rentExists.rows);
+    if (rentExists.rows.length === 0) {
+      res.sendStatus(404);
+    }
+    if (rentExists.rows[0].returnDate !== null) {
+      res.sendStatus(400);
+    }
+    else {
+      await connection.query('DELETE FROM rentals WHERE id = $1;', [id]);
+      res.sendStatus(200);
+    }
+  } catch (err) {
+    console.log(err.menssage);
   }
-  if (rentExists.rows[0].returnDate !== null) {
-    res.sendStatus(400);
-  }
-  else {
-    await connection.query('DELETE FROM rentals WHERE id = $1;', [id]);
-    res.sendStatus(200);
-  }
-
-  res.send("apagou")
 })
 
 export default rentalsRouter;

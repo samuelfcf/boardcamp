@@ -5,10 +5,11 @@ import { CustomerSchema } from "../schemas/CustomerSchema.js";
 const customersRouter = Router();
 
 customersRouter.post("/", async (req, res) => {
-  const { name, phone, cpf, birthday } = req.body;
-  const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1;', [cpf])
   try {
+    const { name, phone, cpf, birthday } = req.body;
     const { error } = CustomerSchema.validate({ name, phone, cpf, birthday });
+
+    const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1;', [cpf])
 
     if (error) {
       res.sendStatus(400)
@@ -56,26 +57,29 @@ customersRouter.get("/", async (req, res) => {
 });
 
 customersRouter.get("/:id", async (req, res) => {
-  const id = req.params.id;
-  const result = await connection.query('SELECT * FROM customers WHERE id = $1', [id]);
-  if (result.rows.length === 0) {
-    res.sendStatus(404);
-  } else {
-    result.rows = result.rows.map(e => ({
-      ...e,
-      birthday: new Date(e.birthday).toLocaleDateString('pt-Br')
-    }));
-    res.status(200).send(result.rows[0]);
+  try {
+    const id = req.params.id;
+    const result = await connection.query('SELECT * FROM customers WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+    } else {
+      result.rows = result.rows.map(e => ({
+        ...e,
+        birthday: new Date(e.birthday).toLocaleDateString('pt-Br')
+      }));
+      res.status(200).send(result.rows[0]);
+    }
+  } catch (err) {
+    console.log(err.message);
   }
 });
 
 customersRouter.put("/:id", async (req, res) => {
-  const id = req.params.id
-  const { name, phone, cpf, birthday } = req.body;
-  const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1 AND id <> $2;', [cpf, id])
-
   try {
+    const id = req.params.id
+    const { name, phone, cpf, birthday } = req.body;
     const { error } = CustomerSchema.validate({ name, phone, cpf, birthday });
+    const custumerExists = await connection.query('SELECT * FROM customers WHERE cpf = $1 AND id <> $2;', [cpf, id])
 
     if (error) {
       res.sendStatus(400)
@@ -88,7 +92,7 @@ customersRouter.put("/:id", async (req, res) => {
       res.sendStatus(200)
     }
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
   }
 });
 

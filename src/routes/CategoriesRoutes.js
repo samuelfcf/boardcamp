@@ -5,15 +5,15 @@ import { CategorieSchema } from "../schemas/CategorieSchema.js";
 const categoriesRouter = Router();
 
 categoriesRouter.post("/", async (req, res) => {
-  const { name } = req.body;
-  const { error } = CategorieSchema.validate({ name });
-
-  if (error) {
-    res.sendStatus(400);
-    return;
-  }
-
   try {
+    const { name } = req.body;
+    const { error } = CategorieSchema.validate({ name });
+
+    if (error) {
+      res.sendStatus(400);
+      return;
+    }
+
     const categorieExists = await connection.query('SELECT * FROM categories WHERE name = $1;', [name]);
 
     if (categorieExists.rows.length) {
