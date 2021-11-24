@@ -19,9 +19,6 @@ O projeto foi desenvolvido usando as seguintes tecnologias:
   # Clonar repositório
   $ git clone https://github.com/samuelfcf/boardcamp
 
-  # Entrar no diretório do projeto
-  $ cd dashboard0-financeiro
-
   # Entrar no diretório do banco de dados
   $ cd database-boardcamp
 
@@ -36,7 +33,7 @@ O projeto foi desenvolvido usando as seguintes tecnologias:
   $ yarn install
 
   # Iniciar o projeto
-  $ npx nodemon src/server.js
+  $ yarn start:dev
 ```
 
 ---
